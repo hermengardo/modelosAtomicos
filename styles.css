@@ -1,19 +1,20 @@
-@keyframes text-fade {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
 body {
     background-color: #111;
     margin: 0;
     overflow: hidden;
+    font-family: "Times New Roman", Times, serif;
 }
 
-#name {
+.headers {
+    color: white;
+    text-align: center;
+    width: 100%;
+    height: 100%; 
+    display: flex;
+    justify-content: center;
+}
+
+#border-bot {
     border-bottom: 2px dashed red;
 }
 
@@ -21,15 +22,22 @@ body {
     width: 100%; /* 100% of its parent's width */
     height: 100%;   /* This will be determined by padding-bottom */
     position: absolute;
-    padding-top: 2.5%;
+    top: 0;
+    bottom: 0;
+    padding-top: 4%;
 }
 
 #model-title {
-  padding-top: 2.5%; /* Adjust the padding as needed */
-  color: white;
-  text-align: center;
-  font-size: 46pt;
-  position: absolute;
-  width: 100%;
+    color: white;
+    font-size: 46pt;
+    position: relative;
+    text-align: center;
+    padding-top: 2.5%;
 }
 
+#model-subtitle {
+    color: white;
+    font-size: 12pt;
+    position: relative;
+    text-align: center;
+}

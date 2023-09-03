@@ -2,9 +2,9 @@ let ATOMIC_MODEL;
 let MODEL = 0
 
 class Atom {
-  constructor(totalPoints, radius) {
-    this.total = totalPoints;
-    this.radius = radius;
+  constructor() {
+    this.total = 30;
+    this.radius = 250;
     this.angX = 0;
     this.angY = 225;
     this.atom = this.createAtom();
@@ -28,6 +28,13 @@ class Atom {
       }
     }
     return atom;
+  }
+
+  updateToDaltonModel() {
+    MODEL = 0;
+    this.radius = 250;
+    this.atom = this.createAtom();
+    this.draw;
   }
 
   updateToThomsonModel() {
@@ -119,17 +126,18 @@ class Atom {
       }
     } 
     else if (MODEL === 2) {
-      const numElectrons = 4; // Number of electrons
-      let time = millis() * 0.00001; // Adjust this multiplier to control the speed
+      const numElectrons = 5; // Number of electrons
+      let time = millis() * 0.00005; // Adjust this multiplier to control the speed
       let angles = [];
 
-      for (let i = 1; i < numElectrons; i++) {
-        const electronOrbitRadius = 150 + (i**2) * 25;
-
+       for (let i = 1; i < numElectrons; i++) {
+        const electronOrbitRadius = 150 + (i**2) * 15;
+        const electron_inv_pos = numElectrons - i;
+       
         if (i % 2 === 0) {
-          angles[i] = time * (i**5 + 100); // Adjust the time multiplier to control the speed
+          angles[i] = time * (electron_inv_pos**2 + 100); // Adjust the time multiplier to control the speed
         } else {
-          angles[i] = -(time * (i**5 + 100));
+          angles[i] = -(time * (electron_inv_pos**2 + 100));
         }
 
         const x = electronOrbitRadius * sin(angles[i]);
@@ -138,7 +146,7 @@ class Atom {
         
         fill(255, 255, 255);
         push();
-        translate(x, y, z);
+        translate(x, y, z * random(i, 10));
         sphere(5); // Draw electrons as spheres
         pop();
 
@@ -150,8 +158,8 @@ class Atom {
       this.angY += 0.01;
     }
     else {
-      this.angX += 0.0015;
-      this.angY += 0.0015;
+      this.angX += 0.01;
+      this.angY += 0.01;
     }
   }
 }
@@ -161,7 +169,7 @@ function setup() {
   const canvas = createCanvas(container.offsetWidth, container.offsetHeight, WEBGL);
   canvas.parent('canvas-container');
 
-  ATOMIC_MODEL = new Atom(30, 250);
+  ATOMIC_MODEL = new Atom();
 }
 
 function draw() {
@@ -173,13 +181,30 @@ function windowResized() {
   resizeCanvas(container.offsetWidth, container.offsetHeight);
 }
 
-function keyPressed() {
-  if (keyCode === ENTER || keyCode === RIGHT_ARROW) {
-    if (MODEL === 0) {
-      ATOMIC_MODEL.updateToThomsonModel();
-    }
-    else if (MODEL === 1) {
-      ATOMIC_MODEL.updateToRutherfordModel();
+function handleUserAction(event) {
+  const Heading = document.getElementById("name");
+  Heading.style.animation = "none";
+
+  if ((event.type === "keydown" && event.keyCode === 13) || (event.type === "click" && event.button === 0)) {
+    handleAction();
+  }
+
+  function handleAction() {
+    switch (MODEL) {
+      case 0:
+        ATOMIC_MODEL.updateToThomsonModel();
+        Heading.textContent = "Thomson";
+        break;
+      case 1:
+        ATOMIC_MODEL.updateToRutherfordModel();
+        Heading.textContent = "Rutherford";
+        break;
+      case 2:
+        ATOMIC_MODEL.updateToDaltonModel();
+        Heading.textContent = "Dalton";
+        break;
     }
   }
 }
+
+
