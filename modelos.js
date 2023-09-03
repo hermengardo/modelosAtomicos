@@ -1,4 +1,5 @@
-let atomic_model;
+let ATOMIC_MODEL;
+let MODEL = 0
 
 class Atom {
   constructor(totalPoints, radius) {
@@ -7,8 +8,7 @@ class Atom {
     this.angX = 0;
     this.angY = 225;
     this.atom = this.createAtom();
-    this.eletrons = this.eletronsRModel();
-    this.type = 0;
+    this.eletrons = this.eletronsTModel();
   }
 
   createAtom() {
@@ -31,13 +31,18 @@ class Atom {
   }
 
   updateToThomsonModel() {
-    if (this.type != 1) {
-      this.type = 1;
+      MODEL = 1;
       this.draw();
-    }
   }
 
-  eletronsRModel() {
+  updateToRutherfordModel () {
+    MODEL = 2;
+    this.radius = 10;
+    this.atom = this.createAtom();
+    this.draw();
+  }
+
+  eletronsTModel() {
     const smallSpheres = [];
     const numSmallSpheres = 100;
     const minDistance = 75; 
@@ -91,8 +96,8 @@ class Atom {
     noStroke();
 
     for (let i = 0; i < this.total; i++) {
-      if (i %2 == 0) {
-        fill(i + 50 * 1.1, i + 5.5 * 1.1, i*1.2 + 10)
+      if (i % 3 === 0) {
+        fill(i + 50 * 1.4, i + 5.5 * 1.1, i*1.2 + 10)
       }
       beginShape(QUAD_STRIP);
       for (let j = 0; j < this.total + 1; j++) {
@@ -104,18 +109,50 @@ class Atom {
       endShape();
     }
     
-    if (this.type == 1) {
+    if (MODEL === 1) {
+      fill(255, 255, 255);
       for (const smallSphere of this.eletrons) {
-        fill(255, 243, 247);
         push();
         translate(smallSphere.x, smallSphere.y, smallSphere.z);
         sphere(15);
         pop();
       }
-    }
+    } 
+    else if (MODEL === 2) {
+      const numElectrons = 4; // Number of electrons
+      let time = millis() * 0.00001; // Adjust this multiplier to control the speed
+      let angles = [];
 
-    this.angX += 0.01;
-    this.angY += 0.002;
+      for (let i = 1; i < numElectrons; i++) {
+        const electronOrbitRadius = 150 + (i**2) * 25;
+
+        if (i % 2 === 0) {
+          angles[i] = time * (i**5 + 100); // Adjust the time multiplier to control the speed
+        } else {
+          angles[i] = -(time * (i**5 + 100));
+        }
+
+        const x = electronOrbitRadius * sin(angles[i]);
+        const y = electronOrbitRadius * cos(angles[i]);
+        const z = 0;
+        
+        fill(255, 255, 255);
+        push();
+        translate(x, y, z);
+        sphere(5); // Draw electrons as spheres
+        pop();
+
+        angles[i] += 0.01 * (i + 1);
+      }
+    }
+    if (MODEL !== 2) {
+      this.angX += 0.015;
+      this.angY += 0.01;
+    }
+    else {
+      this.angX += 0.0015;
+      this.angY += 0.0015;
+    }
   }
 }
 
@@ -124,11 +161,11 @@ function setup() {
   const canvas = createCanvas(container.offsetWidth, container.offsetHeight, WEBGL);
   canvas.parent('canvas-container');
 
-  atomic_model = new Atom(50, 250);
+  ATOMIC_MODEL = new Atom(30, 250);
 }
 
 function draw() {
-  atomic_model.draw();
+  ATOMIC_MODEL.draw();
 }
 
 function windowResized() {
@@ -136,8 +173,13 @@ function windowResized() {
   resizeCanvas(container.offsetWidth, container.offsetHeight);
 }
 
-function keyTyped() {
-  if (key === "Enter") {
-    atomic_model.updateToThomsonModel();
+function keyPressed() {
+  if (keyCode === ENTER || keyCode === RIGHT_ARROW) {
+    if (MODEL === 0) {
+      ATOMIC_MODEL.updateToThomsonModel();
+    }
+    else if (MODEL === 1) {
+      ATOMIC_MODEL.updateToRutherfordModel();
+    }
   }
 }
