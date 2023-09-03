@@ -8,7 +8,7 @@ document.addEventListener("keydown", function(event) {
 
         // After a short delay (e.g., 500 milliseconds), update the text content
         setTimeout(function() {
-            Heading.textContent = "Rutherford";
+            Heading.textContent = "Thomson";
         }, 500); // Adjust the delay as needed
     }
 });

@@ -30,7 +30,7 @@ class Atom {
     return atom;
   }
 
-  updateToRutherfordModel() {
+  updateToThomsonModel() {
     if (this.type != 1) {
       this.type = 1;
       this.draw();
@@ -138,6 +138,6 @@ function windowResized() {
 
 function keyTyped() {
   if (key === "Enter") {
-    atomic_model.updateToRutherfordModel();
+    atomic_model.updateToThomsonModel();
   }
 }
