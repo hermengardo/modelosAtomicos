@@ -91,6 +91,11 @@ class Atom {
     this.draw();
   }
 
+  updateToBohrModel() {
+    MODEL = 3;
+    this.draw();
+  }
+
   eletronsTModel() {
     const smallSpheres = [];
     const numSmallSpheres = 100;
@@ -135,16 +140,33 @@ class Atom {
     return true;
   }
 
+  draw_orbit(radius, vertices) {
+    stroke(188, 189, 193);
+    noFill();
+    beginShape();
+    const numVertices = vertices; // Adjust the number of vertices as needed for smoothness
+    for (let i = 0; i < numVertices; i++) {
+      const angle = map(i, 0, numVertices, 0, TWO_PI);
+      const x = radius * cos(angle);
+      const y = radius * sin(angle);
+      vertex(x, y);
+    }
+    endShape(CLOSE);
+    noStroke();
+  }
+
   draw() {
     background(0, 0);
     rotateY(this.angX);
     rotateX(this.angY);
     ambientLight(255);
+    fill(70, 10, 10);
     noStroke();
+    
 
     for (let i = 0; i < this.total; i++) {
-      if (i % 3 === 0) {
-        fill(i + 50 * 1.4, i + 5.5 * 1.1, i*1.2 + 10)
+      if (MODEL < 2 & i % 3 == 0){ 
+        fill(i *1.3 + 70, i * 1.2 + 10, i*1.2 + 10);
       }
       beginShape(TRIANGLE_STRIP);
       for (let j = 0; j < this.total + 1; j++) {
@@ -153,7 +175,7 @@ class Atom {
         let v2 = this.atom[i + 1][j];
         vertex(v2.x, v2.y, v2.z);
       }
-      endShape();
+      endShape(CLOSE);
     }
     
     if (MODEL === 1) {
@@ -165,30 +187,32 @@ class Atom {
         pop();
       }
     } else if (MODEL === 2) {
+      const vertices = 60;
       const numElectrons = 5;
-      let time = millis() * 0.00005;
+      const modifier = 35;
+      for(let i = 1; i < numElectrons; i ++) {
+        this.draw_orbit(i ** 1.5 * modifier, vertices)
+      }
+      let time = millis() * 0.000035;
       let angles = [];
-
+      fill(255);
       for (let i = 1; i < numElectrons; i++) {
-        const electron_inv_pos = numElectrons - i;
-        const electronOrbitRadius = 150 + (electron_inv_pos**2) * 15;
+        const electron_inv_pos = (numElectrons - i) + 5;
+        const electronOrbitRadius = (i**1.5) * modifier;
 
         if (electron_inv_pos % 2 === 0) {
-          angles[i] = time * (electron_inv_pos**2 + 100);
+          angles[i] = time * (electron_inv_pos**2);
         } else {
-          angles[i] = -(time * (electron_inv_pos**2 + 100));
+          angles[i] = -(time * (electron_inv_pos**2));
         }
 
         const x = electronOrbitRadius * sin(angles[i]);
         const y = electronOrbitRadius * cos(angles[i]);
         const z = 0;
-
-        fill(255, 255, 255);
         push();
         translate(x, y, z * random(i, 10));
-        sphere(5); // Draw electrons as spheres
+        circle(0, 0, 10)
         pop();
-
         angles[i] += 0.01 * (i + 1);
       }
     }
@@ -197,9 +221,8 @@ class Atom {
       this.angY += 0.01;
     }
     else {
-      this.angX = 25;
-      this.angY += 0.01;
+      this.angY = 0.0;
+      this.angX = 0.0;
     }
   }
 }
-
