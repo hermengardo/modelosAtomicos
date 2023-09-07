@@ -74,6 +74,7 @@ class Atom {
 
   updateToDaltonModel() {
     MODEL = 0;
+    this.total = 30;
     this.radius = 250;
     this.atom = this.createAtom();
     this.draw;
@@ -86,7 +87,8 @@ class Atom {
 
   updateToRutherfordModel () {
     MODEL = 2;
-    this.radius = 5;
+    this.radius = 10;
+    this.total = 10;
     this.atom = this.createAtom();
     this.draw();
   }
@@ -98,8 +100,8 @@ class Atom {
 
   eletronsTModel() {
     const smallSpheres = [];
-    const numSmallSpheres = 100;
-    const minDistance = 75; 
+    const numSmallSpheres = 75;
+    const minDistance = 50; 
 
     for (let i = 0; i < numSmallSpheres; i++) {
       let attempts = 0;
@@ -141,7 +143,7 @@ class Atom {
   }
 
   draw_orbit(radius, vertices) {
-    stroke(188, 189, 193);
+    stroke(160, 160, 160);
     noFill();
     beginShape();
     const numVertices = vertices; // Adjust the number of vertices as needed for smoothness
@@ -162,10 +164,9 @@ class Atom {
     ambientLight(255);
     fill(70, 10, 10);
     noStroke();
-    
 
     for (let i = 0; i < this.total; i++) {
-      if (MODEL < 2 & i % 3 == 0){ 
+      if (MODEL < 2 & i % 5 == 0){ 
         fill(i *1.3 + 70, i * 1.2 + 10, i*1.2 + 10);
       }
       beginShape(TRIANGLE_STRIP);
@@ -190,14 +191,17 @@ class Atom {
       const vertices = 60;
       const numElectrons = 5;
       const modifier = 35;
-      for(let i = 1; i < numElectrons; i ++) {
-        this.draw_orbit(i ** 1.5 * modifier, vertices)
+
+      for(let n = 1; n < numElectrons; n ++) {
+        this.draw_orbit(n ** 1.5 * modifier, vertices)
       }
+
+      fill(255);
       let time = millis() * 0.000035;
       let angles = [];
-      fill(255);
+      
       for (let i = 1; i < numElectrons; i++) {
-        const electron_inv_pos = (numElectrons - i) + 5;
+        const electron_inv_pos = (numElectrons - i)**2 + 2;
         const electronOrbitRadius = (i**1.5) * modifier;
 
         if (electron_inv_pos % 2 === 0) {
