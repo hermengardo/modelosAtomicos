@@ -101,45 +101,25 @@ class Atom {
   eletronsTModel() {
     const smallSpheres = [];
     const numSmallSpheres = 75;
-    const minDistance = 50; 
+    const radius = this.radius;
+
+    const phiOffset = Math.PI / numSmallSpheres; 
+    const thetaOffset = Math.PI * (3.0 - Math.sqrt(5.0)); 
 
     for (let i = 0; i < numSmallSpheres; i++) {
-      let attempts = 0;
-      let validPosition = false;
-      let smallSphere;
+      const y = 1 - (i / (numSmallSpheres - 1)) * 2; 
+      const radiusAtY = Math.sqrt(1 - y * y) * radius; 
 
-      while (!validPosition && attempts < 100) {
-        const lat = random(0, PI);
-        const lon = random(0, TWO_PI);
+      const phi = i * phiOffset; 
+      const theta = i * thetaOffset;
 
-        const x = this.radius * sin(lat) * cos(lon);
-        const y = this.radius * sin(lat) * sin(lon);
-        const z = this.radius * cos(lat);
+      const x = Math.cos(theta) * radiusAtY;
+      const z = Math.sin(theta) * radiusAtY;
 
-        validPosition = this.isPositionValid(smallSpheres, createVector(x, y, z), minDistance);
-
-        if (validPosition) {
-          smallSphere = createVector(x, y, z);
-        }
-        attempts++;
-      }
-
-      if (validPosition) {
-        smallSpheres.push(smallSphere);
-      }
-
+      smallSpheres.push(createVector(x, y * radius, z));
     }
+
     return smallSpheres;
-  }
-
-  isPositionValid(existingSpheres, newPosition, minDistance) {
-    for (const sphere of existingSpheres) {
-      const distance = p5.Vector.dist(newPosition, sphere);
-      if (distance < minDistance) {
-        return false;
-      }
-    }
-    return true;
   }
 
   draw_orbit(radius, vertices) {
