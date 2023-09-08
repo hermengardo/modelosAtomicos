@@ -21,7 +21,6 @@ function windowResized() {
 function handleUserAction(event) {
   const name = document.getElementById("name");
   const border = document.getElementById("border-bot");
-  name.style.animation = "none";
 
   if ((event.type === "keydown" && event.keyCode === 13) || (event.type === "click" && event.button === 0)) {
     handleAction();
@@ -106,6 +105,7 @@ class Atom {
     this.radius = 5;
     this.atom = this.createAtom();
     this.draw();
+    CURR_ORBIT = 1;
   }
 
   eletronsTModel() {
@@ -132,17 +132,17 @@ class Atom {
     return smallSpheres;
   }
 
-  calculateWavelength(nf, ni) {
+  rydbergFormula(nf, ni) {
     const R = 3.29;
     const v = R * ((1 / nf**2) - (1 / ni**2));
     const wavelength = (2.998/v) * 10**2
     return wavelength;
   }
 
-  WavelengthToRGB(wavelength) {
-    const r = Math.floor(Math.sin(wavelength) * 128 + 127);
-    const g = Math.floor(Math.sin(wavelength + 2) * 128 + 127);
-    const b = Math.floor(Math.sin(wavelength + 4) * 128 + 127);
+  wavelengthToRGB(wavelength) {
+    const r = Math.abs(Math.cos(wavelength + 4) * 255);
+    const g = Math.abs(Math.cos(wavelength + 2) * 255);
+    const b = Math.abs(Math.cos(wavelength) * 255);
     
     return `rgb(${r}, ${g}, ${b})`;
   }
@@ -160,15 +160,16 @@ class Atom {
     }
     endShape(CLOSE);
     noStroke();
-  }
+  } 
 
   drawElectronOrbits(numElectrons, orbits) {
+    const audio = document.getElementById("QJ");
     const border = document.getElementById("border-bot");
     const name = document.getElementById("name");
     let eletron_size = 10;
     let modifier = 25;
     let tan_velocity = 0.0001;
-    const vertices = 60;
+    const vertices = 100;
     let electrons;
     let quantum_jump = false;
 
@@ -198,14 +199,20 @@ class Atom {
       if (MODEL === 3) {
         if (random() > 0.99) {
           if (CURR_ORBIT > 1) {
-            const wavelength = this.calculateWavelength(1, CURR_ORBIT)
-            const rgbValue = this.WavelengthToRGB(wavelength);
+            const new_orbit = int(random(1, CURR_ORBIT - 1));
+            const wavelength = this.rydbergFormula(new_orbit, CURR_ORBIT);
+            CURR_ORBIT = new_orbit;
+            const rgbValue = this.wavelengthToRGB(wavelength);
             border.style.borderBottom = `10px dashed ${rgbValue}`;
             name.style.color = `${rgbValue}`
-            CURR_ORBIT = 1;
+            audio.play();
           }
           else {
-            CURR_ORBIT = int(random(1, 8))
+            const new_orbit = int(random(1, 8))
+            if (CURR_ORBIT != new_orbit) {
+              audio.play();
+              CURR_ORBIT = new_orbit;
+            }
           }
         }
         else {
