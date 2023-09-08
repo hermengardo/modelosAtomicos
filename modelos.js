@@ -19,9 +19,9 @@ function windowResized() {
 }
 
 function handleUserAction(event) {
-  const Heading = document.getElementById("name");
+  const name = document.getElementById("name");
   const border = document.getElementById("border-bot");
-  Heading.style.animation = "none";
+  name.style.animation = "none";
 
   if ((event.type === "keydown" && event.keyCode === 13) || (event.type === "click" && event.button === 0)) {
     handleAction();
@@ -31,20 +31,21 @@ function handleUserAction(event) {
     switch (MODEL) {
       case 0:
         ATOMIC_MODEL.updateToThomsonModel();
-        Heading.textContent = "Thomson";
+        name.textContent = "Thomson";
         break;
       case 1:
         ATOMIC_MODEL.updateToRutherfordModel();
-        Heading.textContent = "Rutherford";
+        name.textContent = "Rutherford";
         break;
       case 2:
         ATOMIC_MODEL.updateToBohrModel();
-        Heading.textContent = "Bohr";
+        name.textContent = "Bohr";
         break;
       case 3:
         ATOMIC_MODEL.updateToDaltonModel();
-        Heading.textContent = "Dalton";
-        border.style.borderBottom = "5px dashed red";
+        name.textContent = "Dalton";
+        name.style.color = "#fff";
+        border.style.borderBottom = "10px dashed red";
         break;
     }
   }
@@ -52,7 +53,7 @@ function handleUserAction(event) {
 
 class Atom {
   constructor() {
-    this.total = 30;
+    this.total = 25;
     this.radius = 250;
     this.angX = 0;
     this.angY = 225;
@@ -109,7 +110,7 @@ class Atom {
 
   eletronsTModel() {
     const smallSpheres = [];
-    const numSmallSpheres = 75;
+    const numSmallSpheres = 50;
     const radius = this.radius;
 
     const phiOffset = Math.PI / numSmallSpheres; 
@@ -131,22 +132,22 @@ class Atom {
     return smallSpheres;
   }
 
-  calculateWavelength(n1, n2) {
-    const R = 1.097373;
-    const inverseFrequency = R * ((1 / n1) - (1 / n2));
-    const frequency = 1 / inverseFrequency;
-    return frequency;
+  calculateWavelength(nf, ni) {
+    const R = 3.29;
+    const v = R * ((1 / nf**2) - (1 / ni**2));
+    const wavelength = (2.998/v) * 10**2
+    return wavelength;
   }
 
-  mapFrequencyToRGB(frequency) {
-    const r = Math.floor(Math.sin(frequency) * 128 + 127);
-    const g = Math.floor(Math.sin(frequency + 2 * Math.PI / 3) * 128 + 127);
-    const b = Math.floor(Math.sin(frequency + 4 * Math.PI / 3) * 128 + 127);
+  WavelengthToRGB(wavelength) {
+    const r = Math.floor(Math.sin(wavelength) * 128 + 127);
+    const g = Math.floor(Math.sin(wavelength + 2) * 128 + 127);
+    const b = Math.floor(Math.sin(wavelength + 4) * 128 + 127);
     
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  draw_orbit(radius, vertices) {
+  drawOrbit(radius, vertices) {
     beginShape();
     stroke(160, 160, 160);
     noFill();
@@ -163,6 +164,7 @@ class Atom {
 
   drawElectronOrbits(numElectrons, orbits) {
     const border = document.getElementById("border-bot");
+    const name = document.getElementById("name");
     let eletron_size = 10;
     let modifier = 25;
     let tan_velocity = 0.0001;
@@ -180,7 +182,7 @@ class Atom {
     }
 
     for (let n = 1; n < orbits; n++) {
-      this.draw_orbit(n ** 1.5 * modifier, vertices, red, green, blue);
+      this.drawOrbit(n ** 1.5 * modifier, vertices, red, green, blue);
     }
 
     fill(255);
@@ -196,16 +198,14 @@ class Atom {
       if (MODEL === 3) {
         if (random() > 0.99) {
           if (CURR_ORBIT > 1) {
-            const frequency = this.calculateWavelength(CURR_ORBIT, 1)
-            const rgbValue = this.mapFrequencyToRGB(frequency);
+            const wavelength = this.calculateWavelength(1, CURR_ORBIT)
+            const rgbValue = this.WavelengthToRGB(wavelength);
             border.style.borderBottom = `10px dashed ${rgbValue}`;
+            name.style.color = `${rgbValue}`
             CURR_ORBIT = 1;
           }
           else {
             CURR_ORBIT = int(random(1, 8))
-            const frequency = this.calculateWavelength(1, CURR_ORBIT)
-            const rgbValue = this.mapFrequencyToRGB(frequency);
-            border.style.borderBottom = `10px dashed ${rgbValue}`;
           }
         }
         else {
@@ -237,10 +237,10 @@ class Atom {
     noStroke();
 
     for (let i = 0; i < this.total; i++) {
-      if (MODEL < 2 & i % 5 == 0){ 
+      if (MODEL == 0 & i % 5 == 0){ 
         fill(i *1.3 + 70, i * 1.2 + 10, i*1.2 + 10);
       }
-      beginShape(TRIANGLE_STRIP);
+      beginShape(QUAD_STRIP);
       for (let j = 0; j < this.total + 1; j++) {
         let v1 = this.atom[i][j];
         vertex(v1.x, v1.y, v1.z);
