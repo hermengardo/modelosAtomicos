@@ -1,7 +1,7 @@
 # **Modelos Atômicos**  
 ## **Introdução**
 
-- Este repositório contém representações dos modelos atômicos de Dalton, Thomson, Rutherford e Bohr.
+- Este repositório contém representações visuais dos modelos atômicos de Dalton, Thomson, Rutherford e Bohr.
 
 - Representações desenvolvidas para a disciplina de Química 1 do curso de Ciências Moleculares da Universidade de São Paulo (USP).
 
