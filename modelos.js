@@ -1,5 +1,6 @@
 let ATOMIC_MODEL;
 let MODEL = 0;
+let CURR_ORBIT = 1;
 
 function setup() {
   const container = document.getElementById('canvas-container');
@@ -19,6 +20,7 @@ function windowResized() {
 
 function handleUserAction(event) {
   const Heading = document.getElementById("name");
+  const border = document.getElementById("border-bot");
   Heading.style.animation = "none";
 
   if ((event.type === "keydown" && event.keyCode === 13) || (event.type === "click" && event.button === 0)) {
@@ -36,8 +38,13 @@ function handleUserAction(event) {
         Heading.textContent = "Rutherford";
         break;
       case 2:
+        ATOMIC_MODEL.updateToBohrModel();
+        Heading.textContent = "Bohr";
+        break;
+      case 3:
         ATOMIC_MODEL.updateToDaltonModel();
         Heading.textContent = "Dalton";
+        border.style.borderBottom = "5px dashed red";
         break;
     }
   }
@@ -95,6 +102,8 @@ class Atom {
 
   updateToBohrModel() {
     MODEL = 3;
+    this.radius = 5;
+    this.atom = this.createAtom();
     this.draw();
   }
 
@@ -122,10 +131,25 @@ class Atom {
     return smallSpheres;
   }
 
+  calculateWavelength(n1, n2) {
+    const R = 1.097373;
+    const inverseFrequency = R * ((1 / n1) - (1 / n2));
+    const frequency = 1 / inverseFrequency;
+    return frequency;
+  }
+
+  mapFrequencyToRGB(frequency) {
+    const r = Math.floor(Math.sin(frequency) * 128 + 127);
+    const g = Math.floor(Math.sin(frequency + 2 * Math.PI / 3) * 128 + 127);
+    const b = Math.floor(Math.sin(frequency + 4 * Math.PI / 3) * 128 + 127);
+    
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
   draw_orbit(radius, vertices) {
+    beginShape();
     stroke(160, 160, 160);
     noFill();
-    beginShape();
     const numVertices = vertices; // Adjust the number of vertices as needed for smoothness
     for (let i = 0; i < numVertices; i++) {
       const angle = map(i, 0, numVertices, 0, TWO_PI);
@@ -135,6 +159,73 @@ class Atom {
     }
     endShape(CLOSE);
     noStroke();
+  }
+
+  drawElectronOrbits(numElectrons, orbits) {
+    const border = document.getElementById("border-bot");
+    let eletron_size = 10;
+    let modifier = 25;
+    let tan_velocity = 0.0001;
+    const vertices = 60;
+    let electrons;
+    let quantum_jump = false;
+
+    numElectrons += 1;
+    orbits += 1;
+
+    if (MODEL === 3) {
+      modifier = 15;
+      eletron_size = 10;
+      tan_velocity = 0.003;
+    }
+
+    for (let n = 1; n < orbits; n++) {
+      this.draw_orbit(n ** 1.5 * modifier, vertices, red, green, blue);
+    }
+
+    fill(255);
+    let time = millis() * tan_velocity;
+    let angles = [];
+
+    for (let i = 1; i < numElectrons; i++) {
+      electrons = 1;
+      if (MODEL === 2) {
+        electrons = i + 3;
+      }
+
+      if (MODEL === 3) {
+        if (random() > 0.99) {
+          if (CURR_ORBIT > 1) {
+            const frequency = this.calculateWavelength(CURR_ORBIT, 1)
+            const rgbValue = this.mapFrequencyToRGB(frequency);
+            border.style.borderBottom = `10px dashed ${rgbValue}`;
+            CURR_ORBIT = 1;
+          }
+          else {
+            CURR_ORBIT = int(random(1, 8))
+            const frequency = this.calculateWavelength(1, CURR_ORBIT)
+            const rgbValue = this.mapFrequencyToRGB(frequency);
+            border.style.borderBottom = `10px dashed ${rgbValue}`;
+          }
+        }
+        else {
+          CURR_ORBIT = CURR_ORBIT;
+        }
+      } else {
+        CURR_ORBIT = i;
+      }
+  
+      // Calculate the electron's orbit radius based on quantum jump
+      angles[i] = -(time * electrons ** 2);
+      const x = (CURR_ORBIT ** 1.5) * modifier * sin(angles[i]);
+      const y = (CURR_ORBIT ** 1.5) * modifier * cos(angles[i]);
+      const z = 0;
+      push();
+      translate(x, y, z * random(i, 10));
+      circle(0, 0, eletron_size);
+      pop();
+      angles[i] += 0.01 * (i + 1);
+    }
   }
 
   draw() {
@@ -167,40 +258,14 @@ class Atom {
         sphere(10);
         pop();
       }
-    } else if (MODEL === 2) {
-      const vertices = 60;
-      const numElectrons = 5;
-      const modifier = 35;
-
-      for(let n = 1; n < numElectrons; n ++) {
-        this.draw_orbit(n ** 1.5 * modifier, vertices)
-      }
-
-      fill(255);
-      let time = millis() * 0.000035;
-      let angles = [];
-      
-      for (let i = 1; i < numElectrons; i++) {
-        const electron_inv_pos = (numElectrons - i)**2 + 2;
-        const electronOrbitRadius = (i**1.5) * modifier;
-
-        if (electron_inv_pos % 2 === 0) {
-          angles[i] = time * (electron_inv_pos**2);
-        } else {
-          angles[i] = -(time * (electron_inv_pos**2));
-        }
-
-        const x = electronOrbitRadius * sin(angles[i]);
-        const y = electronOrbitRadius * cos(angles[i]);
-        const z = 0;
-        push();
-        translate(x, y, z * random(i, 10));
-        circle(0, 0, 10)
-        pop();
-        angles[i] += 0.01 * (i + 1);
-      }
     }
-    if (MODEL !== 2) {
+    if (MODEL === 2) {
+      this.drawElectronOrbits(4, 4);
+    }
+    if (MODEL === 3) {
+      this.drawElectronOrbits(1, 7)
+    }
+    if (MODEL < 2) {
       this.angX += 0.015;
       this.angY += 0.01;
     }
