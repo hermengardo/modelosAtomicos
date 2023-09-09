@@ -1,4 +1,4 @@
-# **Modelos Atômicos**  
+# **Modelos Atômicos**  ⚛️
 ## **Introdução**
 
 - Este repositório contém representações visuais dos modelos atômicos de Dalton, Thomson, Rutherford e Bohr.
