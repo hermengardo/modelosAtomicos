@@ -133,25 +133,40 @@ class Atom {
   }
 
   rydbergFormula(nf, ni) {
-    const R = 3.29;
-    const v = R * ((1 / nf**2) - (1 / ni**2));
-    const wavelength = (2.998/v) * 10**2
-    return wavelength;
+    const R = 1.097e7;
+    const wavelength = 1/(R * ((1 / (nf ** 2)) - (1 / (ni ** 2))));
+    return wavelength * 1.0e9;
   }
 
   wavelengthToRGB(wavelength) {
-    const r = Math.abs(Math.cos(wavelength + 4) * 255);
-    const g = Math.abs(Math.cos(wavelength + 2) * 255);
-    const b = Math.abs(Math.cos(wavelength) * 255);
-    
-    return `rgb(${r}, ${g}, ${b})`;
+    if (wavelength <= 435) {
+      return "rgb(146,46,226)"
+    }
+    if (wavelength <= 500) {
+      return "rgb(0,14,147)"
+    }
+    if (wavelength <= 520) {
+      return "rgb(1,233,250)"
+    }
+    if (wavelength <= 565) {
+      return "rgb(1,180,58)"
+    }
+    if (wavelength <= 590) {
+      return "rgb(242,253,5)"
+    }
+    if (wavelength <= 625) {
+      return "rgb(255,203,2)"
+    }
+    if (wavelength > 625) {
+      return "rgb(255,39,0)"
+    }
   }
 
   drawOrbit(radius, vertices) {
     beginShape();
     stroke(160, 160, 160);
     noFill();
-    const numVertices = vertices; // Adjust the number of vertices as needed for smoothness
+    const numVertices = vertices;
     for (let i = 0; i < numVertices; i++) {
       const angle = map(i, 0, numVertices, 0, TWO_PI);
       const x = radius * cos(angle);
@@ -221,8 +236,7 @@ class Atom {
       } else {
         CURR_ORBIT = i;
       }
-  
-      // Calculate the electron's orbit radius based on quantum jump
+
       angles[i] = -(time * electrons ** 2);
       const x = (CURR_ORBIT ** 1.5) * modifier * sin(angles[i]);
       const y = (CURR_ORBIT ** 1.5) * modifier * cos(angles[i]);
@@ -244,7 +258,7 @@ class Atom {
     noStroke();
 
     for (let i = 0; i < this.total; i++) {
-      if (MODEL == 0 & i % 5 == 0){ 
+      if (MODEL < 2 & i % 5 == 0){ 
         fill(i *1.3 + 70, i * 1.2 + 10, i*1.2 + 10);
       }
       beginShape(QUAD_STRIP);
