@@ -18,9 +18,12 @@ body {
     padding-top: 4%;
 }
 
-#model-title {
-    color: white;
+h1 {
     font-size: 46pt;
+    color: white;
+    text-align: center;
+}
+#model-title {
     position: relative;
     text-align: center;
     padding-top: 2.5%;
@@ -31,4 +34,12 @@ body {
     font-size: 12pt;
     position: relative;
     text-align: center;
+}
+
+#lambda {
+    opacity: 0;
+    text-align: center;
+    position: absolute;
+    bottom: 2.5%;
+    width: 100%;
 }

@@ -21,6 +21,7 @@ function windowResized() {
 function handleUserAction(event) {
   const name = document.getElementById("name");
   const border = document.getElementById("border-bot");
+  const lambda = document.getElementById("lambda");
 
   if ((event.type === "keydown" && event.keyCode === 13) || (event.type === "click" && event.button === 0)) {
     handleAction();
@@ -39,11 +40,13 @@ function handleUserAction(event) {
       case 2:
         ATOMIC_MODEL.updateToBohrModel();
         name.textContent = "Bohr";
+        lambda.style.opacity = 1;
         break;
       case 3:
         ATOMIC_MODEL.updateToDaltonModel();
         name.textContent = "Dalton";
         name.style.color = "#fff";
+        lambda.style.opacity = 0;
         border.style.borderBottom = "10px dashed red";
         break;
     }
@@ -133,32 +136,27 @@ class Atom {
   }
 
   rydbergFormula(nf, ni) {
-    const R = 1.097e7;
-    const wavelength = 1/(R * ((1 / (nf ** 2)) - (1 / (ni ** 2))));
-    return wavelength * 1.0e9;
+    const RH = 3.29;
+    const v = RH * (1/nf**2 - 1/ni**2);
+    const wavelength = (2.998/v) * 10**2;
+    return wavelength;
   }
 
   wavelengthToRGB(wavelength) {
     if (wavelength <= 435) {
-      return "rgb(146,46,226)"
+      return "rgb(125, 0, 255)"; // violet
     }
     if (wavelength <= 500) {
-      return "rgb(0,14,147)"
-    }
-    if (wavelength <= 520) {
-      return "rgb(1,233,250)"
+      return "rgb(0, 110, 250)"; // blue
     }
     if (wavelength <= 565) {
-      return "rgb(1,180,58)"
-    }
-    if (wavelength <= 590) {
-      return "rgb(242,253,5)"
+      return "rgb(0,255,0)"; // green
     }
     if (wavelength <= 625) {
-      return "rgb(255,203,2)"
+      return "rgb(255,165,0)"; // orange
     }
     if (wavelength > 625) {
-      return "rgb(255,39,0)"
+      return "rgb(255, 0,0)"; // red
     }
   }
 
@@ -181,9 +179,10 @@ class Atom {
     const audio = document.getElementById("QJ");
     const border = document.getElementById("border-bot");
     const name = document.getElementById("name");
+    const lambda = document.getElementById("lambda_value");
     let eletron_size = 10;
     let modifier = 25;
-    let tan_velocity = 0.0001;
+    let tan_velocity = 0.00008;
     const vertices = 100;
     let electrons;
     let quantum_jump = false;
@@ -219,13 +218,12 @@ class Atom {
             CURR_ORBIT = new_orbit;
             const rgbValue = this.wavelengthToRGB(wavelength);
             border.style.borderBottom = `10px dashed ${rgbValue}`;
-            name.style.color = `${rgbValue}`
-            audio.play();
+            name.style.color = `${rgbValue}`;
+            lambda.textContent = int(wavelength);
           }
           else {
             const new_orbit = int(random(1, 8))
             if (CURR_ORBIT != new_orbit) {
-              audio.play();
               CURR_ORBIT = new_orbit;
             }
           }
@@ -281,7 +279,7 @@ class Atom {
       }
     }
     if (MODEL === 2) {
-      this.drawElectronOrbits(4, 4);
+      this.drawElectronOrbits(5, 5);
     }
     if (MODEL === 3) {
       this.drawElectronOrbits(1, 7)
