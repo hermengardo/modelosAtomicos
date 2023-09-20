@@ -84,7 +84,7 @@ class Atom {
 
   updateToDaltonModel() {
     MODEL = 0;
-    this.total = 30;
+    this.total = 50;
     this.radius = 250;
     this.atom = this.createAtom();
     this.draw;
@@ -176,7 +176,6 @@ class Atom {
   } 
 
   drawElectronOrbits(numElectrons, orbits) {
-    const audio = document.getElementById("QJ");
     const border = document.getElementById("border-bot");
     const name = document.getElementById("name");
     const lambda = document.getElementById("lambda_value");
@@ -185,7 +184,6 @@ class Atom {
     let tan_velocity = 0.00008;
     const vertices = 100;
     let electrons;
-    let quantum_jump = false;
 
     numElectrons += 1;
     orbits += 1;
